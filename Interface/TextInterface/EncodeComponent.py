@@ -3,12 +3,14 @@ from tkinter import filedialog
 from binary import *
 from matplotlib import pyplot as plt
 import cv2
+import os
+
 class EncodeComponent(tk.Frame):
     def __init__(self, master):
         super().__init__(master, bg="lightblue")
 
         # Tiêu đề
-        label = tk.Label(self, text="Encode Component", font=("Arial", 14), bg="lightblue")
+        label = tk.Label(self, text="Encode", font=("Arial", 14), bg="lightblue")
         label.grid(row=0, column=0, columnspan=3, padx=20, pady=20)
 
         # Label và Entry cho văn bản cần giải mã
@@ -19,27 +21,36 @@ class EncodeComponent(tk.Frame):
         self.edit_entry.grid_columnconfigure(1, weight=1)  # Đảm bảo ô nhập văn bản mở rộng theo chiều ngang
 
                 # Button "Browse File" và Entry "File Path"
-        browse_button = tk.Button(self, text="Browse File", command=self.browse_file)
-        browse_button.grid(row=2, column=0, padx=10, pady=5, sticky="e")
+        lbl_browser_file = tk.Label(self, text="File Encode:", bg="lightblue")
+        lbl_browser_file.grid(row=2, column=0, padx=10, pady=5, sticky="e")
+
         self.file_path_entry = tk.Entry(self, width=50)
         self.file_path_entry.grid(row=2, column=1, pady=5, sticky="we")
         self.file_path_entry.grid_columnconfigure(1, weight=1)  # Đảm bảo ô nhập văn bản mở rộng theo chiều ngang
+        
+        browse_button = tk.Button(self, text="...", command=self.browse_file, width=5)  # Đặt width thành 10 ký tự
+        browse_button.grid(row=2, column=2, padx=10, pady=5, sticky="e")
 
         # Button "Browse Folder Save" và Entry "Folder Path Save"
-        browse_button_save = tk.Button(self, text="Browse Folder Save", command=self.browse_folder)
-        browse_button_save.grid(row=3, column=0, padx=10, pady=5, sticky="e")
+        lbl_browser_folder = tk.Label(self, text="Folder Path Save:", bg="lightblue")
+        lbl_browser_folder.grid(row=3, column=0, padx=10, pady=5, sticky="e")
+
         self.folder_path_entry_save = tk.Entry(self, width=50)
         self.folder_path_entry_save.grid(row=3, column=1, pady=5, sticky="we")
         self.folder_path_entry_save.grid_columnconfigure(1, weight=1)  # Đảm bảo ô nhập văn bản mở rộng theo chiều ngang
 
+        browse_button_save = tk.Button(self, text="...", command=self.browse_folder,width=5)
+        browse_button_save.grid(row=3, column=2, padx=10, pady=5, sticky="e")
+
         # Label và Entry cho tên ảnh mới
-        lbl_txt = tk.Label(self, text="New txt name:", bg="lightblue")
+        lbl_txt = tk.Label(self, text="Name New File:", bg="lightblue")
         lbl_txt.grid(row=4, column=0, padx=10, pady=5, sticky="e")
         self.new_txt = tk.Entry(self, width=30)
         self.new_txt.grid(row=4, column=1, pady=5, sticky="we")
+
         # Button "Submit"
-        submit_button = tk.Button(self, text="Submit", command=self.submit)
-        submit_button.grid(row=6, column=2, padx=10, pady=5, sticky="e")
+        submit_button = tk.Button(self, text="Encode", command=self.submit,width=50)
+        submit_button.grid(row=5, column=1, padx=10, pady=5, sticky="e")
     def browse_file(self):
         filename = filedialog.askopenfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt")])
         self.file_path_entry.delete(0, tk.END)
@@ -61,13 +72,13 @@ class EncodeComponent(tk.Frame):
 
     def log(self, message):
             lbl_log = tk.Label(self, text=message, bg="lightblue")
-            lbl_log.grid(row=5, column=1, padx=10, pady=5, sticky="e")
+            lbl_log.grid(row=6, column=1, padx=10, pady=5, sticky="e")
 
 
 
     def encode_txt_data(self):
         count2=0
-        file1 = open(self.file_path_entry.get(),"r")
+        file1 = open(self.file_path_entry.get(),"r",encoding="utf-8")
         for line in file1: 
             for word in line.split():
                 count2=count2+1
@@ -111,7 +122,10 @@ class EncodeComponent(tk.Frame):
         nameoffile = self.folder_path_entry_save.get() + "/" + self.new_txt.get()
         if not nameoffile.endswith(".txt"):
             nameoffile += ".txt"
-
+        if os.path.exists(nameoffile):
+            # Tên tệp đã tồn tại, thông báo cho người dùng
+            self.log("File name already exists. Please choose another name.")
+            return 0
         file3= open(nameoffile,"w+", encoding="utf-8")
         word=[]
         for line in file1: 
